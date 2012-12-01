@@ -1,0 +1,11 @@
+<H1>Score for <%= @assignment.name %></H1>
+   
+<TABLE class="grades" >
+  <% revid = 0 %>
+  <% puts "hello" %>
+<%= render :partial => 'grades/participant_title', :locals => {:prefix => nil} %>                      
+<%= render :partial => 'grades/participant', :locals => {:prefix => 'user',  :team => false, :rid => revid, :reviews =>@participant.get_scores(@questions)[:review][:assessments], :metareviews =>@participant.get_scores(@questions)[:metareview][:assessments], :pscore => @participant.get_scores(@questions)} %>
+</TABLE>
+
+<BR/>
+<a href="javascript:window.history.back()">Back</a>

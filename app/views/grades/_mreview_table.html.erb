@@ -1,0 +1,88 @@
+<table class="grades" xmlns="http://www.w3.org/1999/html">
+  <tr><th>&nbsp;</th>
+    <% for i in 0...metareviews.size%>
+        <th><%= collabel %>&nbsp;<%=i+1%><br/>
+
+          <!--  <a href="#" id="<%=prefix%>_reviewsLink" name="<%=prefix%>_reviewsLink" onClick="toggleElement('<%=prefix%>_reviews','reviewsfgfdgdfgdfg');return false;">show ss review</a></th>-->
+
+    <% end %>
+  </tr>
+  <% if controller.action_name != "view_my_scores" %>
+
+      <tr class="head"><td align="right"><b><%= rowlabel %></b></td>
+        <% for metareview in metareviews %>
+            <td align="center">
+              <% if prefix %>
+                  <% puts "if" %>
+                  <a href="#<%= prefix+"_"+metareview.map.reviewer.name %>"><%= metareview.map.reviewer.fullname %></a>&nbsp;<%=link_to '<img src="/images/delete_icon.png"/>', :controller => 'response', :action => 'delete', :id => metareview.id, :return => 'instructor' %>
+
+              <% else %>
+                  <% puts "else" %>
+                  <%= link_to metareview.map.reviewer.fullname, :controller=>ctrl, :action => caction, :id=> metareview.id%>
+              <% end %>
+            </td>
+        <% end %>
+      </tr>
+  <% end %>
+
+
+  <% qid = Questionnaire.find(@assignment.questionnaires[1].id) %>
+  <% all_ques= Question.find_all_by_questionnaire_id(qid) %>
+  <% for question in all_ques %>
+      <tr class="head">
+        <td align="center">
+          <%= sprintf("%4s",question.txt) %>   </td>
+           <% for metareview in metareviews %>
+<cbr/>
+              <% all_score= Score.find_all_by_question_id(question.id) %>
+                <% for score in all_score %>
+                <% if score.response_id == metareview.id %>
+                <td align="center">
+
+                  <%= sprintf("%d", score.score) %>
+                  <% end %>
+                </td>
+
+      <% end %>
+            <% end %>
+      </tr>
+  <% end %>
+
+
+
+
+  <tr class="head"><td align="right"><b>Average score</b></td>
+    <% for metareview in metareviews %>
+        <td align="center">
+
+          <!-- get the score latest version from all reviews available -->
+          <% all_resp=Response.find_all_by_map_id(metareview.map_id) %>
+          <% sort_to=all_resp.sort { |m1,m2|(m1.version_num and m2.version_num) ? m2.version_num <=> m1.version_num : (m1.version_num ? -1 : 1)} %>
+
+          <% score = Score.get_total_score(:response => sort_to[0], :questions => @questions[symbol], :q_types => Array.new) %>
+          <% if controller.action_name != "view_my_scores" %>
+              <input type="hidden" id="mailer_<%= metareview.map.reviewer.fullname %>_grade" name="mailer[<%= review.map.reviewer.fullname %>_grade]" value="<%= score  %>">
+
+          <% end %>
+          <%= sprintf("%.2f",score) %>% &nbsp;
+          <br>
+
+
+        </td>
+
+
+
+    <% end %>
+    <tr>    <td></td>
+      <% for i in 0...metareviews.size %>
+
+          <td>
+            <%# link_to('Show Detailed Review','toggleElement('user_reviews1','reviews');' %>
+
+             <% puts metareviews.size %>
+            <a href="#" id="<%=prefix%>_mreviews<%=i%>Link<%=prefix%>_mreviewsLink" name="<%=prefix%>_mreviews<%=i%>Link" onClick="toggleElement('<%=prefix%>_mreviews<%=i%>','metareviews');return false;">show metareviews</a>
+
+
+          </td>
+      <% end %>  </tr>
+    </table>

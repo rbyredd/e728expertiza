@@ -1,0 +1,18 @@
+<!-- METAREVIEWS --> 
+<% if rscore and rscore[:assessments].length > 0 %>
+  <BR/>
+  <%= render :partial => 'grades/mreview_table',
+           :locals => {
+           :ctrl => 'review_of_review',
+           :caction => 'view',
+           :symbol => "metareview".to_sym,
+           :prefix => prefix,
+           :assignment => participant.assignment,
+           :metareviews => rscore[:assessments],
+           :collabel => "Metareview",
+           :rowlabel => "Metareviewer",                      
+           }%>
+  <BR/>         
+  <HR/> 
+  <% end %>
+<!-- END METAREVIEWS -->

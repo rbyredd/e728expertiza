@@ -1,0 +1,13 @@
+<!-- PARTICIPANTS --> 
+<%= render :partial => 'participant_title', :locals => {:prefix => nil}  %>
+<% index = 0 %>
+<% @assignment.participants.each{
+    | participant | %>   
+     <%= render :partial => 'grades/participant',
+                :locals => {:prefix => 'user_'+index.to_s,
+                            :team => false, :reviews =>@participant.get_scores(@questions)[:review][:assessments], :metareviews =>@participant.get_scores(@questions)[:metareview][:assessments],
+                            :pscore => @scores[:participants][participant.id.to_s.to_sym]} %>                                                                                   
+<% 
+     index += 1
+    } %> 
+<!-- END PARTICIPANTS --> 

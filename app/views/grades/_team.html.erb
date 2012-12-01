@@ -1,0 +1,160 @@
+<TR class="row"><TD>
+  <a href="#" id="<%= prefix %>Link" name="<%= prefix %>Link" onclick="toggleTeam('<%= prefix %>');return false;"><img src="/images/expand.png"/></a>
+  <%= tscore[:team].name %></TD>
+  <% if tscore[:scores][:avg] %>
+      <TD COLSPAN="4" ALIGN="CENTER"><%= sprintf("%.2f",tscore[:scores][:avg]) %>%</TD>
+      <TD COLSPAN="4" ALIGN="CENTER"><%= sprintf("%.0f",tscore[:scores][:min]) %>% - <%= sprintf("%.0f",tscore[:scores][:max]) %>%</TD>
+      <% for participant in tscore[:team].get_participants %>
+          <% if participant.directory_num %>
+
+              <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/correct.png"></img></TD>
+              <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/correct.png"></img></TD>
+              <% x=0 %>
+              <% all_par = ResubmissionTime.find_all_by_participant_id(participant) %>
+              <% for par in all_par %>
+                  <% x= x+1 %>
+              <% end %>
+              <% if x>1 %>
+                  <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/correct.png"></img></TD>
+              <% else %>
+                  <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/wrong.gif"></img></TD>
+              <% end %>
+
+              <!-- To determine if rereviewed -->
+              <% updatedate = 1999 %>
+              <% mapid = 1111 %>
+              <% maindate = 122 %>
+              <% all_dues= DueDate.find_all_by_deadline_type_id (3) %>
+              <% for dd in all_dues %>
+                  <% if dd.assignment_id == @assignment.id %>
+                      <% maindate = dd.due_at %>
+                  <% end %>
+              <% end %>
+              <% all_pr = AssignmentParticipant.find(participant) %>
+              <% uid = all_pr.user_id %>
+              <% responses = ResponseMap.find_all_by_type("TeamReviewResponseMap") %>
+              <% for rid in responses %>
+                  <% if rid.reviewee_id == uid %>
+                      <% mapid = rid.id %>
+                  <% end %>
+              <% end %>
+              <% all_responses = Response.find_all_by_map_id(mapid) %>
+              <% for rp in all_responses %>
+                  <%# <%= sprintf("%s", rp.updated_at ) %>
+                  <% updatedate = rp.updated_at %>
+              <% end %>
+              <% if maindate!=122 %>
+                  <% if updatedate < maindate %>
+                      <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/correct.png"></img></TD>
+                  <% end %>
+              <% end %>
+              <% if maindate == 122 %>
+                  <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/wrong.gif"></img></TD>
+              <% end %>
+              <!-- Determination of rereviewed ENDS -->
+              <!-- meta review code -->
+              <% j=0 %>
+              <% all_user = participant.user_id %>
+
+              <% all_reviewee = ResponseMap.find_all_by_reviewee_id(all_user)  %>
+              <% for asd in all_reviewee %>
+                  <% all_rw = ResponseMap.find_all_by_reviewee_id(asd.reviewer_id) %>
+                  <% for pqr in all_rw  %>
+                      <% if pqr.type == "MetareviewResponseMap"%>
+
+                          <% all_maps = Response.find_all_by_map_id(pqr.id) %>
+                          <% for rt in all_maps %>
+                              <% j= j+1 %>
+                          <% end %>
+                      <% end %>
+                  <% end %>
+              <% end %>
+              <% if j>0   %>
+                  <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/correct.png"></img></TD>
+              <% else %>
+                  <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/wrong.gif"></img></TD>
+              <% end %>
+              <!-- meta review ends-->
+          <% end %>
+      <% end %>
+
+  <% else %>
+      <TD COLSPAN="4" ALIGN="CENTER">---</TD>
+      <TD COLSPAN="4" ALIGN="CENTER">---</TD>
+      <% for participant in tscore[:team].get_participants %>
+          <% if participant.directory_num %>
+              <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/correct.png"></img></TD>
+              <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/wrong.gif"></img></TD>
+              <% x=0 %>
+              <% all_par = ResubmissionTime.find_all_by_participant_id(participant) %>
+              <% for par in all_par %>
+                  <% x= x+1 %>
+              <% end %>
+              <% if x>1 %>
+                  <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/correct.png"></img></TD>
+              <% else %>
+                  <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/wrong.gif"></img></TD>
+              <% end %>
+              <%#<TD  COLSPAN="4" ALIGN="CENTER"> rereview </TD> %>
+              <!-- To determine if rereviewed -->
+              <% updatedate = 1999 %>
+              <% mapid = 1111 %>
+              <% maindate = 122 %>
+              <% all_dues= DueDate.find_all_by_deadline_type_id (3) %>
+              <% for dd in all_dues %>
+                  <% if dd.assignment_id == @assignment.id %>
+                      <% maindate = dd.due_at %>
+                  <% end %>
+              <% end %>
+              <% all_pr = AssignmentParticipant.find(participant) %>
+              <% uid = all_pr.user_id %>
+              <% responses = ResponseMap.find_all_by_type("TeamReviewResponseMap") %>
+              <% for rid in responses %>
+                  <% if rid.reviewee_id == uid %>
+                      <% mapid = rid.id %>
+                  <% end %>
+              <% end %>
+              <% all_responses = Response.find_all_by_map_id(mapid) %>
+              <% for rp in all_responses %>
+                  <%# <%= sprintf("%s", rp.updated_at ) %>
+                  <% updatedate = rp.updated_at %>
+              <% end %>
+              <% if maindate!=122 %>
+                  <% if updatedate < maindate %>
+                      <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/correct.png"></img></TD>
+                  <% end %>
+              <% end %>
+              <% if maindate == 122 %>
+                  <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/wrong.gif"></img></TD>
+              <% end %>
+              <!-- Determination of rereviewed ENDS -->
+              <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/wrong.gif"></img></TD>
+          <% else %>
+              <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/wrong.gif"></img></TD>
+              <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/wrong.gif"></img></TD>
+              <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/wrong.gif"></img></TD>
+              <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/wrong.gif"></img></TD>
+              <TD COLSPAN="4" ALIGN="CENTER"><img src="/images/wrong.gif"></img></TD>
+
+
+          <% end %>
+      <% end %>
+  <% end %>
+  <TD WIDTH="9">&nbsp;</TD></TR>
+
+<%= render :partial => 'participant_title', :locals => {:prefix => prefix } %>
+<% pindex = 3 %>
+<% for participant in tscore[:team].get_participants %>
+    <%= render :partial => 'grades/participant',
+               :locals => {:prefix => prefix+"_"+pindex.to_s,
+                           :team => true,
+                           :pscore => @scores[:participants][participant.id.to_s.to_sym],
+                           :reviews =>participant.get_scores(@questions)[:review][:assessments],
+                           :metareviews =>participant.get_scores(@questions)[:metareview][:assessments]} %>
+    <% pindex += 1 %>
+<% end %>
+
+
+
+
+

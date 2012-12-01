@@ -1,0 +1,92 @@
+<table class="grades" xmlns="http://www.w3.org/1999/html">
+  <tr><th>&nbsp;</th>
+    <% for i in 0...reviews.size%>
+        <% if i == 0 %>
+        <th><font color="green"><%= collabel %>&nbsp;<%=i+1%></font><br/>
+          <% else %>
+            <th><font color="red"><%= collabel %>&nbsp;<%=i+1%></font><br/>
+            <% end %>
+     <small> <i>Version </i><%= sprintf("%d", reviews[i].version_num) %> </small><br/>
+
+      <!--  <a href="#" id="<%=prefix%>_reviewsLink" name="<%=prefix%>_reviewsLink" onClick="toggleElement('<%=prefix%>_reviews','reviewsfgfdgdfgdfg');return false;">show ss review</a></th>-->
+
+  <% end %>
+  </tr>
+  <% if controller.action_name != "view_my_scores" %>
+
+      <tr class="head"><td align="right"><b><%= rowlabel %></b></td>
+        <% for review in reviews %>
+            <td align="center">
+              <% if prefix %>
+                  <% puts "if" %>
+                  <a href="#<%= prefix+"_"+review.map.reviewer.name %>"><%= review.map.reviewer.fullname %></a>&nbsp;<%=link_to '<img src="/images/delete_icon.png"/>', :controller => 'response', :action => 'delete', :id => review.id, :return => 'instructor' %>
+
+              <% else %>
+                  <% puts "else" %>
+                  <%= link_to review.map.reviewer.fullname, :controller=>ctrl, :action => caction, :id=> review.id%>
+              <% end %>
+            </td>
+        <% end %>
+      </tr>
+  <% end %>
+
+
+            <% qid = Questionnaire.find(@assignment.questionnaires[0].id) %>
+          <% all_ques= Question.find_all_by_questionnaire_id(qid) %>
+          <% for question in all_ques %>
+      <tr class="head">
+        <td align="center">
+            <%= sprintf("%4s",question.txt) %>   </td>
+
+        <% for review in reviews %>
+
+        <% all_score= Score.find_all_by_question_id_and_response_id(question.id, review.id) %>
+        <% for score in all_score %>
+        <td align="center">
+          <% puts "score" %>
+          <% puts score %>
+          <%= sprintf("%d", score.score) %>
+        </td>
+         <% end %>
+      <% end %>
+      </tr>
+      <% end %>
+
+
+
+
+  <tr class="head"><td align="right"><b>Average score</b></td>
+    <% for review in reviews %>
+        <td align="center">
+
+          <!-- get the score latest version from all reviews available -->
+          <% all_resp=Response.find_all_by_map_id(review.map_id) %>
+          <% sort_to=all_resp.sort { |m1,m2|(m1.version_num and m2.version_num) ? m2.version_num <=> m1.version_num : (m1.version_num ? -1 : 1)} %>
+
+          <% score = Score.get_total_score(:response => sort_to[0], :questions => @questions[symbol], :q_types => Array.new) %>
+          <% if controller.action_name != "view_my_scores" %>
+              <input type="hidden" id="mailer_<%= review.map.reviewer.fullname %>_grade" name="mailer[<%= review.map.reviewer.fullname %>_grade]" value="<%= score  %>">
+
+          <% end %>
+          <%= sprintf("%.2f",score) %>% &nbsp;
+          <br>
+
+
+        </td>
+
+
+
+    <% end %>
+    <tr>    <td></td>
+
+    <% for i in 0...reviews.size %>
+
+    <td>
+    <%# link_to('Show Detailed Review','toggleElement('user_reviews1','reviews');' %>
+
+      <a href="#" id="<%=prefix%>_reviews<%=i%>Link<%=prefix%>_reviewsLink" name="<%=prefix%>_reviews<%=i%>Link" onClick="toggleElement('<%=prefix%>_reviews<%=i%>','reviews');return false;">show reviews</a>
+
+
+    </td>
+        <% end %></tr>
+</table>

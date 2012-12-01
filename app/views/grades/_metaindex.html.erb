@@ -1,0 +1,14 @@
+<% if rscore and rscore[:assessments].length > 0 %>
+    <% count = 0 %>
+<% metareview = rscore[:assessments][mde] %>
+    <% count = mde + 1 %>
+    <% if controller.action_name != "view_my_scores" %>
+        <a name="<%=prefix+"_"+metareview.map.reviewer.name%>"></a><%= metareview.display_as_html(prefix) %><BR/><BR/>
+    <% else %>
+
+        <%= metareview.display_as_html(nil,nil,count) %><BR/><BR/>
+    <% end %>
+
+<% else %>
+<i>No metareviews have been completed for this user's reviews.</i>
+<% end %>

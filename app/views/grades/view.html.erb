@@ -1,0 +1,147 @@
+<h1>Summary report for <%= @assignment.name %></h1>
+<BR/>
+<% if @scores[:teams] %>
+    <a href="#" onClick="toggleAll(<%= @scores[:teams].length %>);return false;" id="teamAll" name="teamAll">Show all teams</a>
+    <BR/><BR/>
+<% end %>
+<TABLE class="grades" width="100%">
+  <% if @assignment.team_assignment && @scores[:teams].length > 0 %>
+      <%= render :partial => 'teams' %>
+  <% elsif !@assignment.team_assignment && @scores[:participants].length > 0 %>
+      <%= render :partial => 'participants', :locals => {:reviews =>@participant.get_scores(@questions)[:review][:assessments], :metareviews =>@participant.get_scores(@questions)[:metareview][:assessments]} %>
+  <% else %>
+      <TR><TD>No <%if @assignment.team_assignment%>teams<%else%>participants<%end%> are defined for this assignment</TD></TR>
+  <% end %>
+</TABLE>
+<BR/><BR/>
+<b>Submitted:</b><br />
+<% all_teams = Team.find_all_by_parent_id(@assignment.id) %>
+<% for abr in all_teams %>
+    <% for participant in abr.get_participants %>
+        <% if participant.directory_num %>
+            <%= sprintf("%s",abr.name ) %>   <br />
+        <% end %>
+    <% end %>
+<% end %>
+<br/>   <br/>
+<b>Reviewed:</b>  <br />
+ExpertizaTeam1
+<% all_teams = Team.find_all_by_parent_id(@assignment.id) %>
+<% for abr in all_teams %>
+    <% for participant in abr.get_participants %>
+        <% if participant.directory_num %>
+            <% j=0 %>
+            <% all_user = participant.user_id %>
+            <% all_reviewee = ResponseMap.find_all_by_reviewee_id(all_user)  %>
+            <% for asd in all_reviewee %>
+                <% if asd.type == "TeamReviewResponseMap" %>
+                    <% j = j + 1 %>
+                <% end %>
+
+            <% end %>
+
+
+            <% if j>1 %>
+
+                <%= sprintf("%s",abr.name) %>
+            <% end %>
+
+        <% end  %>
+    <% end %>
+<% end %>
+
+<br/>   <br/>
+
+<b>Re-submission:</b>    <br />
+<% all_teams = Team.find_all_by_parent_id(@assignment.id) %>
+<% for abr in all_teams %>
+    <% for participant in abr.get_participants %>
+        <% if participant.directory_num %>
+
+            <% x=0 %>
+            <% all_par = ResubmissionTime.find_all_by_participant_id(participant) %>
+            <% for par in all_par %>
+                <% x= x+1 %>
+            <% end %>
+            <% if x>1 %>
+                <%= sprintf("%s",abr.name)%><br/>
+            <% end %>
+        <% end %>
+    <% end %>
+<% end %>
+<br />
+<b>Re-review: </b>  <br />
+<% all_teams = Team.find_all_by_parent_id(@assignment.id) %>
+<% for abr in all_teams %>
+    <% for participant in abr.get_participants %>
+        <% if participant.directory_num %>
+            <% updatedate = 1999 %>
+            <% mapid = 1111 %>
+            <% maindate = 122 %>
+            <% all_dues= DueDate.find_all_by_deadline_type_id (3) %>
+            <% for dd in all_dues %>
+                <% if dd.assignment_id == @assignment.id %>
+                    <% maindate = dd.due_at %>
+                <% end %>
+            <% end %>
+            <% all_pr = AssignmentParticipant.find(participant) %>
+            <% uid = all_pr.user_id %>
+            <% responses = ResponseMap.find_all_by_type("TeamReviewResponseMap") %>
+            <% for rid in responses %>
+                <% if rid.reviewee_id == uid %>
+                    <% mapid = rid.id %>
+                <% end %>
+            <% end %>
+            <% all_responses = Response.find_all_by_map_id(mapid) %>
+            <% for rp in all_responses %>
+                <%# <%= sprintf("%s", rp.updated_at ) %>
+                <% updatedate = rp.updated_at %>
+            <% end %>
+            <% if maindate!=122 %>
+                <% if updatedate < maindate %>
+                    <%= sprintf("%s",abr.name)%> <br />
+                <% end %>
+            <% end %>
+        <% end %>
+    <% end %>
+<% end %>
+<br/>   <br/>
+<b>Metareview:     </b> <br />
+<!-- meta review code -->
+
+<% all_teams = Team.find_all_by_parent_id(@assignment.id) %>
+<% for abr in all_teams %>
+    <% for participant in abr.get_participants %>
+        <% if participant.directory_num %>
+            <% j=0 %>
+            <% all_user = participant.user_id %>
+            <% all_reviewee = ResponseMap.find_all_by_reviewee_id(all_user)  %>
+            <% for asd in all_reviewee %>
+                <% all_rw = ResponseMap.find_all_by_reviewee_id(asd.reviewer_id) %>
+                <% for pqr in all_rw  %>
+                    <% if pqr.type == "MetareviewResponseMap"%>
+
+                        <% all_maps = Response.find_all_by_map_id(pqr.id) %>
+                        <% for rt in all_maps %>
+                            <% j= j+1 %>
+                        <% end %>
+                    <% end %>
+                <% end %>
+            <% end %>
+            <% if j>0   %>
+                <%= sprintf("%s",abr.name) %>
+            <% end %>
+        <% end %>
+    <% end %>
+<% end %>
+
+<br/>   <br/>
+<%= link_to 'Export '+'Grades',
+            :controller=>'export_file',
+            :action=>'start',
+            :model=>'Assignment',
+            :id=>@assignment.id %> <BR/><BR/>
+<a href="javascript:window.history.back()">Back</a>
+
+
+
